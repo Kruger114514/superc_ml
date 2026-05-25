@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# 虚拟环境
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 数据集太大,不传(大于 100MB 会被 GitHub 拒绝)
+data/raw/superconductivity.zip
+
+# 我们生成的图片本身不需要,可以重新生成
+results/*.png
+
+# Jupyter
+.ipynb_checkpoints/

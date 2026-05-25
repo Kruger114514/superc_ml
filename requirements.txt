@@ -1,0 +1,9 @@
+streamlit==1.39.0
+pandas==2.2.3
+numpy==1.26.4
+scikit-learn==1.5.2
+xgboost==2.1.2
+joblib==1.4.2
+matplotlib==3.9.2
+pymatgen==2024.10.3
+matminer==0.9.3
