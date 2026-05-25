@@ -2,6 +2,29 @@
 化学式 → Tc 预测的核心逻辑
 独立于 UI,可以单独测试
 """
+# === 修复 matminer 数据文件缺失问题(Streamlit Cloud 部署用) ===
+import os
+import urllib.request
+
+def _ensure_matminer_data():
+    """确保 matminer 的 Magpie 数据文件存在,缺失就从 GitHub 下载"""
+    try:
+        import matminer
+        matminer_dir = os.path.dirname(matminer.__file__)
+        magpie_path = os.path.join(matminer_dir, 'utils', 'data_files',
+                                    'magpie_elementdata', 'all.json')
+        if not os.path.exists(magpie_path):
+            os.makedirs(os.path.dirname(magpie_path), exist_ok=True)
+            url = ('https://raw.githubusercontent.com/hackingmaterials/matminer/'
+                   'main/matminer/utils/data_files/magpie_elementdata/all.json')
+            print(f"下载 matminer 数据文件: {url}")
+            urllib.request.urlretrieve(url, magpie_path)
+            print("数据文件已下载")
+    except Exception as e:
+        print(f"matminer 数据检查跳过: {e}")
+
+_ensure_matminer_data()
+# === 修复结束 ===
 import warnings
 warnings.filterwarnings('ignore')
 
