@@ -1,9 +1,10 @@
 streamlit
-pandas
-numpy
+matminer>=0.9.4
+pymatgen
+pandas<3
+numpy<2
 scikit-learn
 xgboost
 joblib
 matplotlib
-pymatgen
-matminer
+setuptools
