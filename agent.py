@@ -18,19 +18,20 @@ class SuperconductorAgent:
     """超导体筛选 Agent"""
 
     def __init__(self):
-    # 加载 LLM - 优先用 Streamlit secrets, 否则用 .env
-    api_key = None
-    try:
-        import streamlit as st
-        api_key = st.secrets.get("DEEPSEEK_API_KEY", None)
-    except Exception:
-        pass  # 不在 streamlit 环境里就跳过
+        # 加载 LLM - 优先用 Streamlit secrets, 否则用 .env
+        api_key = None
+        try:
+            import streamlit as st
+            api_key = st.secrets.get("DEEPSEEK_API_KEY", None)
+        except Exception:
+            pass
 
-    if not api_key:
-        api_key = os.getenv("DEEPSEEK_API_KEY")
+        if not api_key:
+            api_key = os.getenv("DEEPSEEK_API_KEY")
 
-    if not api_key:
-        raise RuntimeError("DEEPSEEK_API_KEY 未设置, 检查 .env 或 Streamlit Secrets")
+        if not api_key:
+            raise RuntimeError("DEEPSEEK_API_KEY 未设置, 检查 .env 或 Streamlit Secrets")
+
         self.llm = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
         # 加载 Tc 预测器
@@ -49,7 +50,6 @@ class SuperconductorAgent:
 
         self.train_df['elements'] = self.train_df['material'].apply(get_elements)
         self.train_df['n_elements'] = self.train_df['elements'].apply(len)
-
     def parse_query(self, user_query: str) -> dict:
         """step 1: 用 LLM 把自然语言解析为结构化查询"""
         system_prompt = """你是材料科学查询解析器。把用户的自然语言请求转换为 JSON 格式的筛选条件。
