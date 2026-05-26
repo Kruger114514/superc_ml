@@ -24,3 +24,5 @@ results/*.png
 
 # Jupyter
 .ipynb_checkpoints/
+# 环境变量
+.env

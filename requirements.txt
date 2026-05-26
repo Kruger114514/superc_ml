@@ -8,3 +8,5 @@ xgboost
 joblib
 matplotlib
 setuptools
+python-dotenv
+openai
