@@ -1,5 +1,5 @@
 """
-超导临界温度 Tc 预测器 - Web UI (含 Agent 模块)
+超导临界温度 Tc 预测 - Web UI (含 Agent 模块)
 运行: streamlit run app.py
 """
 import streamlit as st
@@ -11,7 +11,7 @@ from predict import TcPredictor
 
 # ===== 页面配置 =====
 st.set_page_config(
-    page_title="超导 Tc 预测器",
+    page_title="超导 Tc 预测",
     page_icon="🧲",
     layout="wide"
 )
@@ -40,7 +40,7 @@ train_df = load_train_data()
 
 
 # ===== 页面标题 =====
-st.title("🧲 超导临界温度 Tc 预测器")
+st.title("🧲 超导临界温度 Tc 预测")
 st.markdown(
     f"基于 XGBoost + Magpie 特征,在 SuperCon 数据集上训练。"
     f"**测试集 R² = {predictor.test_r2:.3f}, MAE = {predictor.test_mae:.2f} K**"
@@ -151,6 +151,10 @@ with tab_agent:
         "调用预测模型、生成分析报告。"
     )
 
+    # 初始化 session state
+    if 'agent_query_text' not in st.session_state:
+        st.session_state['agent_query_text'] = '找几个含铜和氧的高温超导体'
+
     # 示例按钮
     st.markdown("**快速试用:**")
     cols = st.columns(3)
@@ -162,13 +166,14 @@ with tab_agent:
     for i, eq in enumerate(example_queries):
         with cols[i]:
             if st.button(eq, use_container_width=True, key=f"eq_{i}"):
-                st.session_state['agent_query'] = eq
+                st.session_state['agent_query_text'] = eq
+                st.rerun()
 
+    # text_area 直接绑定 session state
     query = st.text_area(
         "你的需求:",
-        value=st.session_state.get('agent_query', '找几个含铜和氧的高温超导体'),
         height=80,
-        key='agent_query_input',
+        key='agent_query_text',
     )
 
     if st.button("🚀 启动 Agent", type="primary"):
