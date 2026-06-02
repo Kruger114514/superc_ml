@@ -1,0 +1,6 @@
+﻿family,n,mean_exp_tc,mean_pred_tc,MAE,max_abs_err
+BCS,6,16.78,14.08,2.7,11.23
+Cuprate,6,98.83,92.27,6.56,12.54
+Hydride,6,205.83,27.27,178.56,223.78
+Iron-based,5,28.2,17.5,10.97,20.86
+Nickelate,3,33.67,20.13,28.76,63.45
