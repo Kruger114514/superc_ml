@@ -1,0 +1,42 @@
+# M3GNet Tc 训练超参数
+# ----------------------------
+# 在 03_train_m3gnet_tc.py 里加载
+# 修改这些值, 不用碰代码
+
+# === 模型架构 ===
+model:
+  architecture: M3GNet
+  pretrained: M3GNet-MP-2018.6.1-Eform  # 从 formation energy 模型 fine-tune
+  cutoff: 5.0           # 节点间距离 cutoff (Å)
+  threebody_cutoff: 4.0 # 三体相互作用 cutoff
+  dim_node_embedding: 64
+  dim_edge_embedding: 64
+  dim_state_embedding: 0  # 不用 state features (Tc 不依赖外部 state)
+  units: 64
+  nlayers: 3
+  is_intensive: true    # Tc 是 intensive (与原子数无关)
+
+# === 数据 ===
+data:
+  train_pkl: data/processed/train.pkl
+  val_pkl:   data/processed/val.pkl
+  test_pkl:  data/processed/test.pkl
+  log_transform: true   # 训练时用 log(Tc), 因为 Tc 跨好几个量级
+
+# === 训练 ===
+training:
+  batch_size: 32        # GPU 24GB+ 推荐 32, 8GB 用 8, 6GB 用 4
+  num_workers: 4
+  max_epochs: 200
+  early_stopping_patience: 30
+  lr: 1.0e-3
+  weight_decay: 1.0e-5
+  lr_scheduler: cosine
+  loss: msle            # mean squared log error, 跟 3DSC 论文一致
+
+# === 输出 ===
+output:
+  ckpt_dir: models/checkpoints
+  best_model: models/m3gnet_tc.pt
+  log_dir: results/training_logs
+  seed: 42
