@@ -2,7 +2,7 @@
 04_evaluate.py — 在测试集上评估训练好的 M3GNet 模型
 =====================================================
 
-输入: models/m3gnet_tc.pt + data/processed/test.pkl
+输入: models/m3gnet_tc.pt + data/processed_3dsc/test.pkl
 输出:
   - results/figures/v2_pred_vs_exp.png  (主散点图)
   - results/figures/v2_error_by_family.png (按家族箱线图)
@@ -88,9 +88,9 @@ def predict_all(lit_module, records, cfg):
     tc_values = [r["tc"] for r in records]
     log_tf = cfg["data"]["log_transform"]
     if log_tf:
-        labels = {"tc": torch.tensor([np.log(t + 1) for t in tc_values], dtype=torch.float32)}
+        labels = {"tc": [float(np.log(t + 1)) for t in tc_values]}
     else:
-        labels = {"tc": torch.tensor(tc_values, dtype=torch.float32)}
+        labels = {"tc": [float(t) for t in tc_values]}
 
     ds = MGLDataset(
         threebody_cutoff=4.0,
@@ -108,10 +108,10 @@ def predict_all(lit_module, records, cfg):
     device = next(lit_module.parameters()).device
     with torch.no_grad():
         for batch in loader:
-            g, lg, state_attr, _ = batch
+            g, lattice, lg, state_attr, _ = batch
             g = g.to(device)
             lg = lg.to(device) if lg is not None else None
-            p = lit_module(g, lg, state_attr).squeeze(-1).cpu().numpy()
+            p = lit_module(g, lg, state_attr, lattice).squeeze(-1).cpu().numpy()
             preds.extend(p.tolist())
 
     preds = np.array(preds)
@@ -204,7 +204,7 @@ def main():
 
     config_path = ROOT / "configs" / "train_config.yaml"
     ckpt_path = ROOT / "models" / "m3gnet_tc.pt"
-    test_path = ROOT / "data" / "processed" / "test.pkl"
+    test_path = ROOT / "data" / "processed_3dsc" / "test.pkl"
 
     for p in [config_path, ckpt_path, test_path]:
         if not p.exists():

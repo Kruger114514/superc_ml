@@ -1,4 +1,4 @@
-# 数据文件 (太大, 不要进 git)
+﻿# 数据文件 (太大, 不要进 git)
 data/3dsc/
 data/superband/
 data/processed/
@@ -12,8 +12,6 @@ models/*.ckpt
 models/checkpoints/
 
 # 训练日志
-results/training_logs/
-results/figures/
 *.log
 
 # Python 缓存
@@ -39,3 +37,10 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+# v2_from_gpu/ 是 GPU 下载的临时快照, 关键文件已复制到 m3gnet_upgrade/
+v2_from_gpu/
+
+# 根目录 results/ 是 v1 残留 (在 main 分支处理, 不在 m3gnet-upgrade)
+
+# 例外: 保留训练好的最佳模型
+!models/m3gnet_tc.pt

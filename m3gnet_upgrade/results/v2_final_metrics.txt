@@ -1,0 +1,34 @@
+v2 训练结果摘要
+======================================================================
+
+数据集: 3DSC (Sommer et al. Sci Data 2023)
+  - Train: 4618
+  - Val:   577
+  - Test:  578
+  - Total: 5773 (实验测量 Tc + DFT 优化结构)
+
+模型: M3GNet (Materials 3-body Graph Network)
+  - 参数量: 279,837
+  - 输入: 完整晶体结构 (cif)
+  - 输出: log(Tc + 1)
+
+训练:
+  - GPU: NVIDIA RTX 4090D (24 GB)
+  - 用时: 约 50 分钟 (200 epoch, early stop)
+  - batch_size: 32, lr=1e-3, cosine schedule
+  - 平均每 epoch 15 秒
+
+结果:
+  - Best validation MAE: 3.290 K (at epoch 168)
+  - Best val loss:       0.3876
+  - Early stopped at:    epoch 198
+
+v1 vs v2:
+  - v1 (XGBoost + Magpie, SuperCon): MAE = 5.48 K
+  - v2 (M3GNet, 3DSC):              MAE = 3.29 K
+  - 误差降低: 40.0%
+
+结论:
+  结构感知模型 (M3GNet) 在 1/4 训练数据下,
+  显著超越纯组分模型 (XGBoost + Magpie),
+  验证了晶体结构信息对 Tc 预测的关键价值.

@@ -77,9 +77,9 @@ def records_to_dataset(
     tc_values = [r["tc"] for r in records]
     if log_transform:
         # log(Tc + 1) 避免 log(0)
-        labels = {"tc": torch.tensor([np.log(t + 1) for t in tc_values], dtype=torch.float32)}
+        labels = {"tc": [float(np.log(t + 1)) for t in tc_values]}
     else:
-        labels = {"tc": torch.tensor(tc_values, dtype=torch.float32)}
+        labels = {"tc": [float(t) for t in tc_values]}
 
     return MGLDataset(
         threebody_cutoff=4.0,
@@ -117,8 +117,28 @@ class TcRegressor(L.LightningModule):
         self.loss_type = loss_type
         self.save_hyperparameters(ignore=["model"])
 
-    def forward(self, g, lg=None, state_attr=None):
-        # M3GNet 输入: g (graph), lg (line graph), state_attr
+    def forward(self, g, lg=None, state_attr=None, lattice=None):
+        # 修复: matgl 1.3 把 lattice 单独传, pos / pbc_offshift 需要手动算
+        import torch as _torch
+        # 补 pos: cartesian = frac_coords @ lattice (每个 graph 用对应的 lattice)
+        if "pos" not in g.ndata and "frac_coords" in g.ndata and lattice is not None:
+            # 找到每个 node 属于哪个 graph (batch_num_nodes 给出每个 graph 的 node 数)
+            batch_num_nodes = g.batch_num_nodes()
+            node_lattice_idx = _torch.repeat_interleave(
+                _torch.arange(len(batch_num_nodes), device=g.device), batch_num_nodes
+            )
+            per_node_lat = lattice[node_lattice_idx]  # [N, 3, 3]
+            frac = g.ndata["frac_coords"]
+            g.ndata["pos"] = _torch.bmm(frac.unsqueeze(1), per_node_lat).squeeze(1)
+        # 补 pbc_offshift = pbc_offset @ lattice
+        if "pbc_offshift" not in g.edata and "pbc_offset" in g.edata and lattice is not None:
+            batch_num_edges = g.batch_num_edges()
+            edge_lattice_idx = _torch.repeat_interleave(
+                _torch.arange(len(batch_num_edges), device=g.device), batch_num_edges
+            )
+            per_edge_lat = lattice[edge_lattice_idx]  # [E, 3, 3]
+            offset = g.edata["pbc_offset"].float()
+            g.edata["pbc_offshift"] = _torch.bmm(offset.unsqueeze(1), per_edge_lat).squeeze(1)
         return self.model(g=g, l_g=lg, state_attr=state_attr)
 
     def _compute_loss(self, pred, target):
@@ -131,17 +151,17 @@ class TcRegressor(L.LightningModule):
             return F.mse_loss(pred, target)
 
     def training_step(self, batch, batch_idx):
-        g, lg, state_attr, labels = batch
-        pred = self(g, lg, state_attr).squeeze(-1)
-        target = labels["tc"]
+        g, lattice, lg, state_attr, labels = batch
+        pred = self(g, lg, state_attr, lattice).squeeze(-1)
+        target = labels
         loss = self._compute_loss(pred, target)
         self.log("train_loss", loss, prog_bar=True, batch_size=g.batch_size)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        g, lg, state_attr, labels = batch
-        pred = self(g, lg, state_attr).squeeze(-1)
-        target = labels["tc"]
+        g, lattice, lg, state_attr, labels = batch
+        pred = self(g, lg, state_attr, lattice).squeeze(-1)
+        target = labels
         loss = self._compute_loss(pred, target)
         self.log("val_loss", loss, prog_bar=True, batch_size=g.batch_size)
 
@@ -156,9 +176,9 @@ class TcRegressor(L.LightningModule):
         return loss
 
     def test_step(self, batch, batch_idx):
-        g, lg, state_attr, labels = batch
-        pred = self(g, lg, state_attr).squeeze(-1)
-        target = labels["tc"]
+        g, lattice, lg, state_attr, labels = batch
+        pred = self(g, lg, state_attr, lattice).squeeze(-1)
+        target = labels
         if self.log_transform:
             pred_tc = torch.exp(pred) - 1
             true_tc = torch.exp(target) - 1

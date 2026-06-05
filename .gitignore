@@ -1,28 +1,73 @@
 # Python
 __pycache__/
 *.py[cod]
+*.so
 *.egg-info/
-.Python
-
-# 虚拟环境
 .venv/
 venv/
+.ipynb_checkpoints/
 
 # IDE
 .vscode/
 .idea/
+*.swp
 
-# 系统
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# 数据集太大,不传(大于 100MB 会被 GitHub 拒绝)
-data/raw/superconductivity.zip
+# === 大文件 ===
+# 训练日志 (30MB)
+*.log
+train.log
 
-# 我们生成的图片本身不需要,可以重新生成
-results/*.png
+# matgl / DGL 缓存
+MGLDataset/
+**/MGLDataset/
+dgl_graph.bin
 
-# Jupyter
-.ipynb_checkpoints/
-# 环境变量
+# 上传/下载的打包文件
+*.tar.gz
+*.zip
+m3gnet_upgrade_for_gpu.zip
+v2_complete.tar.gz
+
+# 预处理数据 (用户从 3DSC 自己生成)
+data/processed_3dsc/*.pkl
+data/processed_3dsc/labels.json
+data/raw_3dsc/
+data/3DSC/
+
+# 训练 checkpoints (只保留最佳模型 m3gnet_tc.pt)
+**/checkpoints/
+**/lightning_logs/
+*.ckpt
+
+# 保留 m3gnet_tc.pt
+!models/m3gnet_tc.pt
+!v2_from_gpu/m3gnet_upgrade/models/m3gnet_tc.pt
+
+# === v2_from_gpu/ 处理 ===
+# 整个 v2_from_gpu 是 GPU snapshot, 大部分不要 push
+# 只保留 results (figures + metrics.csv + final_metrics.txt)
+v2_from_gpu/m3gnet_upgrade/data/
+v2_from_gpu/m3gnet_upgrade/MGLDataset/
+v2_from_gpu/m3gnet_upgrade/scripts/__pycache__/
+v2_from_gpu/m3gnet_upgrade/configs/__pycache__/
+
+# 环境
 .env
+*.env
+
+# 备份
+*.bak
+patch_*.py
+eval.log
+*.tmp
+# v2_from_gpu/ 是 GPU 下载的临时快照, 关键文件已复制到 m3gnet_upgrade/
+v2_from_gpu/
+
+
+# 根目录 v1 残留图 (main 分支处理)
+/results/
