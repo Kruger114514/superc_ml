@@ -79,7 +79,7 @@ cif 结构 → 原子图 (DGL) → M3GNet (预训练 + 微调) → log(Tc+1) →
 | 微调任务 | Tc 回归 (3DSC, 4618 训练样本) |
 | 训练框架 | `PyTorch Lightning` + `matgl` |
 | 优化器 | AdamW + Cosine Annealing |
-| 训练硬件 | NVIDIA RTX 4090D (AutoDL 云租, 约 ¥1.5 RMB) |
+| 训练硬件 | NVIDIA RTX 4090D (AutoDL 云租) |
 | 训练时长 | 50 分钟, 200 epoch (early stop at 198) |
 
 ---
