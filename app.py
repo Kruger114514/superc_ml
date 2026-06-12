@@ -214,7 +214,7 @@ with tab_about:
     st.markdown(f"""
     ## 关于本项目
 
-    **小组成员** ：宋奡  王祉懿 高鹏 陈梦婷 周祎玮           
+    **小组成员** ：宋奡  王祉懿 高鹏 陈梦婷 周祎玮 杨嘉木    
     **模型**: XGBoost Regressor
     **特征**: Magpie (132 个组分描述符)
     **训练数据**: SuperCon (Hamidieh 2018)
